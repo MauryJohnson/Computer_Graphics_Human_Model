@@ -2,144 +2,15 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "SOIL.h"
-#include <vector>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
 
 #include "Shader.h"
 
 GLfloat mix_value=0.2f;
-
-#define PI 3.14159
-
-namespace MatrixBuilder{
-
-//Radians from 0 -> 2*PI
-// R rows and C columns
-//Offset to the index of first num to read!
-//NumTextures is number of textures labelled after data matrix
-
-
-    //Return GLuFloat[] Arr Corresponding to size of ALL
-    // objects by Row,Column
-    // then number of matrices
-    // then by which radians
-    // then by offset, (WHERE IDX to START)
-    // then by number of Textures to SKIP!!
-std::vector<GLfloat> Rotate(GLfloat* M, GLuint R, GLuint C,GLuint Sections,double Radians,GLuint Offset,GLuint NumTextures){
-
-if(M==nullptr || R<=0 || C<=0 || Sections<=0 || Offset<0 || NumTextures<0){
-printf("Bad INPUT!!!");
-exit(-1);
-}
-
-std::vector<GLfloat>Ret;
-
-GLuint TotalC = C+NumTextures;
-
-GLuint IDX = 0;
-for(;IDX<Offset;IDX+=1){
-}
-
-
-double Rot3[]=
-{
-cos(Radians),-sin(Radians),0,
-sin(Radians),cos(Radians),0,
-0,              0,        1
-};
-
-GLfloat NewM[R*C];
-
-GLfloat MyTextures[R][NumTextures==0? 1:NumTextures];
-
-//Iterate all sections
-for(int k=0;k<Sections;k+=1){
-
-//Section 0..N
-int COffSet = 0;
-for(int i=IDX;i<R;i+=1){
-
-//std::vector<GLfloat> M1;
-
-for(int j=0;j<C;j+=1){
-
-printf("\n IDX [%d,%d] -> %f",i,j,M[(i*C+(j+COffSet))]);
-
-//M1.push_back(M[ (i*C) + (j+COffSet)]);
-
-NewM[(i*C)+j] = M[ (i*C) + (j+COffSet)];
-
-IDX+=1;
-}
-
-//NewM.push_back(M1);
-
-COffSet+=NumTextures;
-
-IDX+=NumTextures;
-
-}
-
-printf("\n FINAL IDX:%d\n",IDX);
-
-glm::mat3 aaa = glm::make_mat3(NewM);
-
-std::cout<<glm::to_string(aaa)<<std::endl;
-
-//printf("%s",to_string(aaa));
-
-glm::mat3 r3 = glm::make_mat3(Rot3);
-
-glm::mat3 r3Xa = r3*aaa;
-
-printf("\n ROTATE %f RESULT:\n",Radians);
-
-std::cout<<glm::to_string(r3Xa)<<std::endl;
-
-const GLfloat* p3 = glm::value_ptr(r3Xa);
-
-for(int i=0; i<R*C;i+=1)
-Ret.push_back(p3[i]);
-
-}
-
-//2 Iterate and replace values
-return Ret;
-}
-
-
-std::vector<GLfloat> OneToTwo(GLfloat**M,GLuint R, GLuint C){
-std::vector<GLfloat> M2;
-
-
-return M2;
-}
-
-
-std::vector<GLfloat> TwoToOne(GLfloat ** M,GLuint R, GLuint C){
-//GLFloat[sizeof(M)*sizeof(M[0])]M2;
-
-std::vector<GLfloat> M2;
-
-//int ROW = 0;
-int CPerROW  = C;
-
-for(int i=0; i<R;i+=1){
-for(int j=0; j<C;j+=1){
-M2.push_back(M[i][j]);
-}
-}
-
-return M2;
-
-}
-
-}
 
 void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 {
@@ -234,135 +105,61 @@ int main()
     SOIL_free_image_data(image2);
     glBindTexture(GL_TEXTURE_2D,0);
 
-    //Z
-    GLfloat TWidth = 0.5f;
-    //X
-    GLfloat TLen = 0.75;
-    //Y
-    GLfloat THeight = 0.5f;    
-
-    GLfloat Triangle1[]={
-
-	//T1 TRIANGLE FACE
-	 // positions        // textures
-         TLen,0.0f,0.0f,  0.0f,0.0f,
-         TLen,THeight,0.0f,  1.0f,0.0f,
-         0.0f, 0.0f,0.0f,  1.0f,1.0f,
-
-	//T1 TRIANGLE FACE shifted
-	TLen,0.0f,TWidth,  0.0f,0.0f,
-        TLen,THeight,TWidth,  1.0f,0.0f,
-        0.0f, 0.0f,TWidth,  1.0f,1.0f,
-        //0.75f, 0.0f,0.5f, 0.0f,1.0f,
-
-	//T1 TRIANGLE TOP HALF 1
-	//0.75f,0.0f,0.5f,  0.0f,0.0f,
-        TLen,THeight,TWidth,  0.0f,0.0f,
-	TLen,THeight,0.0f,  1.0f,0.0f,
-        //0.75f,0.0f,0.0f,  1.0f,0.0f,
-	0.0f,0.0f,TWidth,   1.0f,1.0f,
-		
-	//T1 TRIANGLE TOP HALF 2
-	//0.75f,0.0f,0.5f, 1.0f,0.0f,
-        0.75f,THeight,0.0f,  1.0f,1.0f,
-        0.0f,0.0f,TWidth,  1.0f,0.0f,
-        0.0f,0.0f,0.0f,   0.0f,0.0f,		
-
-	//T1 TRIANGLE BOTTOM HALF 1
-	0.0f,0.0f,0.0f, 1.0f,1.0f,
-	TLen,0.0f,0.0f, 1.0f,0.0f,
-	0.0f,0.0f,TWidth, 0.0f,0.0f,	
-	
-	//T1 TRIANGLE BOTTOM HALF 2
-        0.0f,0.0f,TWidth, 1.0f,1.0f,
-        TLen,0.0f,0.0f, 1.0f,0.0f,
-        TLen,0.0f,TWidth, 0.0f,0.0f,
-
-	//T1 TRIANGLE BACK HALF 1
-	TLen,0.0f,0.0f, 1.0f, 1.0f,
-	TLen,THeight,0.0f, 1.0f,0.0f,
-	TLen,THeight,TWidth,0.0f,0.0f,
-	
-	//T1 TRIANGLE BACK HALF 2
-        TLen,0.0f,0.0f, 1.0f, 1.0f,
-        TLen,0.0,TWidth, 1.0f,0.0f,
-        TLen,THeight,TWidth,0.0f,0.0f
-
-    };
-
-    //Return GLuFloat[] Arr Corresponding to size of ALL
-    // objects by Row,Column
-    // then number of matrices
-    // then by which radians
-    // then by offset, (WHERE IDX to START)
-    // then by number of Textures to SKIP!!
-    GLfloat * Triangle2 = MatrixBuilder::Rotate(Triangle1,3,3,8,-PI/2,0,2).data();
-
+    
     GLfloat vertices[]={
         
-	//T1 TRIANGLE FACE
+	//T1
 	 // positions        // textures
-         TLen,0.0f,0.0f,  0.0f,0.0f,
-         TLen,THeight,0.0f,  1.0f,0.0f,
-         0.0f, 0.0f,0.0f,  1.0f,1.0f,
-	 //0.75f, 0.0f, 0.5f, 0.0f,1.0f,
+         0.75f,0.0f,0.0f,  0.0f,0.0f,
+         0.75f,0.5f,0.0f,  1.0f,0.0f,
+         0.5f, 0.0f,-0.0f,  1.0f,1.0f,
+	 0.75f, 0.0f, 0.5f, 0.0f,1.0f,
          //0.5f, 0.5f,-0.5f,  1.0f,1.0f,
         //-0.5f, 0.5f,-0.5f,  0.0f,1.0f,
         //-0.5f,-0.5f,-0.5f,  0.0f,0.0f,
 
-	//T1 TRIANGLE FACE shifted
-	TLen,0.0f,TWidth,  0.0f,0.0f,
-        TLen,THeight,TWidth,  1.0f,0.0f,
-        0.0f, 0.0f,TWidth,  1.0f,1.0f,
-        //0.75f, 0.0f,0.5f, 0.0f,1.0f,
+	//T2
+         0.0f,0.05f, 0.0f,  0.0f,0.0f,
+         0.0f,0.75f, 0.0f,  1.0f,0.0f,
+        -0.5f, 0.75f, 0.0f, 1.0f,1.0f,
+	 0.0f,0.75f,0.5f,   0.0f,1.0f,
+         //0.5f, 0.5f, 0.5f,  1.0f,1.0f,
+        //-0.5f, 0.5f, 0.5f,  0.0f,1.0f,
+        //-0.5f,-0.5f, 0.5f,  0.0f,0.0f,
 
-	//T1 TRIANGLE TOP HALF 1
-	//0.75f,0.0f,0.5f,  0.0f,0.0f,
-        TLen,THeight,TWidth,  0.0f,0.0f,
-	TLen,THeight,0.0f,  1.0f,0.0f,
-        //0.75f,0.0f,0.0f,  1.0f,0.0f,
-	0.0f,0.0f,TWidth,   1.0f,1.0f,
-		
-	//T1 TRIANGLE TOP HALF 2
-	//0.75f,0.0f,0.5f, 1.0f,0.0f,
-        0.75f,THeight,0.0f,  1.0f,1.0f,
-        0.0f,0.0f,TWidth,  1.0f,0.0f,
-        0.0f,0.0f,0.0f,   0.0f,0.0f,		
-
-	//T1 TRIANGLE BOTTOM HALF 1
-	0.0f,0.0f,0.0f, 1.0f,1.0f,
-	TLen,0.0f,0.0f, 1.0f,0.0f,
-	0.0f,0.0f,TWidth, 0.0f,0.0f,	
+	//T3
+        -0.05f, 0.0f, 0.0f,  1.0f,0.0f,
+        -0.75f, 0.0f,0.0f,  1.0f,1.0f,
+        -0.75f,-0.5f,0.0f,  0.0f,1.0f,
+	-0.75f,0.0f,0.5f,   0.0f,1.0f,
 	
-	//T1 TRIANGLE BOTTOM HALF 2
-        0.0f,0.0f,TWidth, 1.0f,1.0f,
-        TLen,0.0f,0.0f, 1.0f,0.0f,
-        TLen,0.0f,TWidth, 0.0f,0.0f,
+        //-0.5f,-0.5f,-0.5f,  0.0f,1.0f,
+        //-0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+        //-0.5f, 0.5f, 0.5f,  1.0f,0.0f,
 
-	//T1 TRIANGLE BACK HALF 1
-	TLen,0.0f,0.0f, 1.0f, 1.0f,
-	TLen,THeight,0.0f, 1.0f,0.0f,
-	TLen,THeight,TWidth,0.0f,0.0f,
-	
-	//T1 TRIANGLE BACK HALF 2
-        TLen,0.0f,0.0f, 1.0f, 1.0f,
-        TLen,0.0,TWidth, 1.0f,0.0f,
-        TLen,THeight,TWidth,0.0f,0.0f,
+	//T4
+         0.0f, -0.05f, 0.0f,  1.0f,0.0f,
+         0.0f, -0.75f,0.0f,  1.0f,1.0f,
+         0.5f,-0.75f,0.0f,  0.0f,1.0f,
+	 0.0f,-0.75f,0.05f, 0.0f,1.0f,
+         //0.5f,-0.5f,-0.5f,  0.0f,1.0f,
+         //0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+         //0.5f, 0.5f, 0.5f,  1.0f,0.0f,
 	
 	//BASE
 	 0.0f,0.0f,0.0f,1.0f,0.0f,
          -0.10f,-1.0f,0.0f,1.0f,1.0f,
          0.10f,-1.0f,0.0f,0.0f,1.0f,
-         //0.0f,-1.0f,0.10f,0.0f,1.0f
+         0.0f,-1.0f,0.10f,0.0f,1.0f
 	 
     };
 
     glm::vec3 cube_positions[]={
         
 	//Rotate T1 about here
-	glm::vec3(0.0, 0.0f, 0.0f),
+	glm::vec3(-0.75, 0.0f, 0.0f),
         //Rotate T1 from here
-	glm::vec3(0.00f,0.0f,0.00f),
+	glm::vec3(0.0f,0.0f,0.00f),
 	
 	//RAT2
 	glm::vec3( 2.0f, 5.0f,-15.0f),
@@ -468,7 +265,7 @@ int main()
             glm::mat4 model(1.0f);
             
   	    model=glm::translate(model,cube_positions[i]);
-            model=glm::rotate(model,glm::radians((GLfloat)glfwGetTime()*50.0f),glm::vec3(0.0f,1.0f,1.0f));
+            model=glm::rotate(model,glm::radians((GLfloat)glfwGetTime()*50.0f),glm::vec3(0.0f,0.0f,1.0f));
             //model=glm::rotate(
  	    model=glm::translate(model,cube_positions[i+1]);
 
@@ -486,15 +283,9 @@ int main()
 */
     	    glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
 
-            glDrawArrays(GL_TRIANGLES,0,/*36*//*18*/24);
-            //glDrawArrays(GL_TRIANGLE_FAN,2,3);
-	    //3d effect of first triangle
-	    //glDrawArrays(GL_TRIANGLES,2,3);
-	    //glDrawArrays(GL_TRIANGLES,3,3);
-	    //glDrawArrays(GL_TRIANGLES,3,4);
-
-
-	    //glDrawElements(GL_TR,3,GL_UNSIGNED_INT,0);
+            glDrawArrays(GL_TRIANGLES,0,/*36*//*18*/6);
+        
+	    //glDrawElements(GL_TRIANGLES,3,GL_UNSIGNED_INT,0);
  	}
         glBindVertexArray(0);
 
