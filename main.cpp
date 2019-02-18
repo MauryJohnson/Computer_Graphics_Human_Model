@@ -42,9 +42,11 @@ std::vector<GLfloat>Ret;
 GLuint TotalC = C+NumTextures;
 
 GLuint IDX = 0;
+GLuint IDXOffSet=0;
 for(;IDX<Offset;IDX+=1){
 }
 
+IDXOffSet = IDX;
 
 double Rot3[]=
 {
@@ -55,29 +57,42 @@ sin(Radians),cos(Radians),0,
 
 GLfloat NewM[R*C];
 
-GLfloat MyTextures[R][NumTextures==0? 1:NumTextures];
+//GLfloat MyTextures[R][NumTextures==0? 1:NumTextures];
 
 //Iterate all sections
 for(int k=0;k<Sections;k+=1){
 
+GLfloat MyTextures[R][NumTextures<1? 1:NumTextures];
+
 //Section 0..N
 int COffSet = 0;
-for(int i=IDX;i<R;i+=1){
+for(int i=0;i<R;i+=1){
 
 //std::vector<GLfloat> M1;
 
 for(int j=0;j<C;j+=1){
 
-printf("\n IDX [%d,%d] -> %f",i,j,M[(i*C+(j+COffSet))]);
+//printf("\n IDX [%d,%d] -> %f",i,j,M[( ( i*C)+ IDXOffSet + (j+COffSet) )]);
 
 //M1.push_back(M[ (i*C) + (j+COffSet)]);
 
-NewM[(i*C)+j] = M[ (i*C) + (j+COffSet)];
+NewM[(i*C)+j] = M[ (i*C)+ IDXOffSet + (j+COffSet)];
 
 IDX+=1;
 }
 
-//NewM.push_back(M1);
+int L = 0;
+
+printf("\n");
+for(int l=C; l<C+NumTextures;l+=1){
+
+//printf("Texture of IDX[%d,%d]:%f\n",i,l,M[(i*C)+ IDXOffSet + l +COffSet]);
+
+MyTextures[i][L] = M[(i*C)+ IDXOffSet +l+COffSet];
+
+L+=1;
+}
+
 
 COffSet+=NumTextures;
 
@@ -85,7 +100,9 @@ IDX+=NumTextures;
 
 }
 
-printf("\n FINAL IDX:%d\n",IDX);
+IDXOffSet=IDX;
+
+printf("\n FINAL IDX:%d\n",IDXOffSet);
 
 glm::mat3 aaa = glm::make_mat3(NewM);
 
@@ -97,14 +114,38 @@ glm::mat3 r3 = glm::make_mat3(Rot3);
 
 glm::mat3 r3Xa = r3*aaa;
 
-printf("\n ROTATE %f RESULT:\n",Radians);
+printf("\n ROTATE %f RADIANS -> RESULT:\n",Radians);
 
 std::cout<<glm::to_string(r3Xa)<<std::endl;
 
-const GLfloat* p3 = glm::value_ptr(r3Xa);
+GLfloat* p3 = glm::value_ptr(r3Xa);
 
-for(int i=0; i<R*C;i+=1)
+int CR = 0;
+int CT = 0;
+//Push rotated values
+//printf("\n ALL OF THE ARRAY\n");
+for(int i=0; i<R*C;i+=1){
+
+printf("B4:%f ",p3[i]);
 Ret.push_back(p3[i]);
+
+CT+=1;
+
+if(CT>=C){
+//Check if end of normal column
+for(int u=0; u<NumTextures;u+=1){
+
+printf("AF:%f ",MyTextures[CR][u]);
+Ret.push_back(MyTextures[CR][u]);
+
+}
+printf("\n");
+
+CR+=1;
+CT=0;
+}
+
+}
 
 }
 
@@ -120,24 +161,51 @@ std::vector<GLfloat> M2;
 return M2;
 }
 
-
-std::vector<GLfloat> TwoToOne(GLfloat ** M,GLuint R, GLuint C){
+std::vector<GLfloat> TwoToOne(GLfloat ** M,GLuint All,GLuint R, GLuint C,GLuint Sections){
 //GLFloat[sizeof(M)*sizeof(M[0])]M2;
 
 std::vector<GLfloat> M2;
 
 //int ROW = 0;
-int CPerROW  = C;
-
+//int CPerROW  = C;
+int IDX = 0;
+int OFFSET=0;
+//Iterate through each slice
+for(int u=0; u<All;u+=1){
+//Iterate each section of the slice
+for(int p=0;p<Sections;p+=1){
+//Iterate piece by piece
 for(int i=0; i<R;i+=1){
+
 for(int j=0; j<C;j+=1){
-M2.push_back(M[i][j]);
+
+printf("%f",  M[u][(i*C) + OFFSET + j]);
+
+M2.push_back( 
+  M[u][(i*C) + OFFSET + j]
+  );
+
+IDX+=1;
 }
+printf("\n");
+}
+
+OFFSET=IDX;
+
+printf("\n");
+}
+printf("\n\n");
+//Reset offset and IDX in arr
+OFFSET=0;
+IDX=0;
+
 }
 
 return M2;
 
 }
+
+//return M2;
 
 }
 
@@ -297,8 +365,23 @@ int main()
     // then by offset, (WHERE IDX to START)
     // then by number of Textures to SKIP!!
     GLfloat * Triangle2 = MatrixBuilder::Rotate(Triangle1,3,3,8,-PI/2,0,2).data();
+    GLfloat * Triangle3 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-PI,0,2).data();
+    GLfloat * Triangle4 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-3*PI/2,0,2).data();
+    
+     GLfloat* V[4]{
+	Triangle1,Triangle2,Triangle3,Triangle4
+     };
+    
+    GLfloat vertices[4*3*5*8];
+ 
+    GLfloat * v = MatrixBuilder::TwoToOne(V,4,3,5,8).data();
+    if(vertices==NULL){
+ 	exit(-1);
+    } 
+    for(int i=0; i<4*3*5*8;i+=1)
+    vertices[i]=v[i];
 
-    GLfloat vertices[]={
+    /*GLfloat vertices[]={
         
 	//T1 TRIANGLE FACE
 	 // positions        // textures
@@ -356,7 +439,7 @@ int main()
          //0.0f,-1.0f,0.10f,0.0f,1.0f
 	 
     };
-
+	*/
     glm::vec3 cube_positions[]={
         
 	//Rotate T1 about here
