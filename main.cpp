@@ -12,7 +12,7 @@
 
 #include "Shader.h"
 
-GLuint VAO[6],VBO[6];
+GLuint VAO[9],VBO[9];
 
 bool keys[1024];
 GLfloat delta_time=0.0f;                // time between current frame and last frame
@@ -40,257 +40,13 @@ GLfloat LArmR = 0;
 GLfloat LArmR2 = 0;
 GLfloat* PRArm;
 GLfloat RArmR = 0;
-GLfloat RARmR2 = 0;
+GLfloat RArmR2 = 0;
 GLfloat* PLLeg;
 GLfloat LLegR = 0;
 GLfloat LLegR2 = 0;
 GLfloat* PRLeg;
 GLfloat RLegR = 0;
 GLfloat RLegR2 = 0;
-
-namespace MatrixBuilder{
-
-//Radians from 0 -> 2*PI
-// R rows and C columns
-//Offset to the index of first num to read!
-//NumTextures is number of textures labelled after data matrix
-
-
-    //Return GLuFloat[] Arr Corresponding to size of ALL
-    // objects by Row,Column
-    // then number of matrices
-    // then by which radians
-    // then by offset, (WHERE IDX to START)
-    // then by number of Textures to SKIP!!
-std::vector<GLfloat> Rotate(GLfloat* M, GLuint R, GLuint C,GLuint Sections,double Radians,GLuint Offset,GLuint NumTextures){
-
-if(M==nullptr || R<=0 || C<=0 || Sections<=0 || Offset<0 || NumTextures<0){
-printf("Bad INPUT!!!");
-exit(-1);
-}
-
-std::vector<GLfloat>Ret;
-
-GLuint TotalC = C+NumTextures;
-
-GLuint IDX = 0;
-GLuint IDXOffSet=0;
-for(;IDX<Offset;IDX+=1){
-}
-
-IDXOffSet = IDX;
-
-double Rot3[]=
-{
-cos(Radians),-sin(Radians),0,
-sin(Radians),cos(Radians),0,
-0,              0,        1
-};
-
-GLfloat NewM[R*C];
-
-//GLfloat MyTextures[R][NumTextures==0? 1:NumTextures];
-
-//Iterate all sections
-for(int k=0;k<Sections;k+=1){
-
-GLfloat MyTextures[R][NumTextures<1? 1:NumTextures];
-
-//Section 0..N
-int COffSet = 0;
-for(int i=0;i<R;i+=1){
-
-//std::vector<GLfloat> M1;
-
-for(int j=0;j<C;j+=1){
-
-//printf("\n IDX [%d,%d] -> %f",i,j,M[( ( i*C)+ IDXOffSet + (j+COffSet) )]);
-
-//M1.push_back(M[ (i*C) + (j+COffSet)]);
-
-NewM[(i*C)+j] = M[ (i*C)+ IDXOffSet + (j+COffSet)];
-
-IDX+=1;
-}
-
-int L = 0;
-
-printf("\n");
-for(int l=C; l<C+NumTextures;l+=1){
-
-//printf("Texture of IDX[%d,%d]:%f\n",i,l,M[(i*C)+ IDXOffSet + l +COffSet]);
-
-MyTextures[i][L] = M[(i*C)+ IDXOffSet +l+COffSet];
-
-L+=1;
-}
-
-
-COffSet+=NumTextures;
-
-IDX+=NumTextures;
-
-}
-
-IDXOffSet=IDX;
-
-printf("\n FINAL IDX:%d\n",IDXOffSet);
-
-glm::mat3 aaa = glm::make_mat3(NewM);
-
-std::cout<<glm::to_string(aaa)<<std::endl;
-
-//printf("%s",to_string(aaa));
-
-glm::mat3 r3 = glm::make_mat3(Rot3);
-
-glm::mat3 r3Xa = r3*aaa;
-
-printf("\n ROTATE %f RADIANS -> RESULT:\n",Radians);
-
-std::cout<<glm::to_string(r3Xa)<<std::endl;
-
-GLfloat* p3 = glm::value_ptr(r3Xa);
-
-int CR = 0;
-int CT = 0;
-//Push rotated values
-//printf("\n ALL OF THE ARRAY\n");
-for(int i=0; i<R*C;i+=1){
-
-printf("B4:%f ",p3[i]);
-Ret.push_back(p3[i]);
-
-CT+=1;
-
-if(CT>=C){
-//Check if end of normal column
-for(int u=0; u<NumTextures;u+=1){
-
-printf("AF:%f ",MyTextures[CR][u]);
-Ret.push_back(MyTextures[CR][u]);
-
-}
-printf("\n");
-
-CR+=1;
-CT=0;
-}
-
-}
-
-}
-
-//2 Iterate and replace values
-return Ret;
-}
-
-
-std::vector<GLfloat> OneToTwo(GLfloat**M,GLuint R, GLuint C){
-std::vector<GLfloat> M2;
-
-
-return M2;
-}
-
-std::vector<GLfloat> TwoToOne(GLfloat ** M,GLuint All,GLuint R, GLuint C,GLuint Sections){
-//GLFloat[sizeof(M)*sizeof(M[0])]M2;
-
-std::vector<GLfloat> M2;
-
-//int ROW = 0;
-//int CPerROW  = C;
-int IDX = 0;
-int OFFSET=0;
-//Iterate through each slice
-for(int u=0; u<All;u+=1){
-//Iterate each section of the slice
-for(int p=0;p<Sections;p+=1){
-//Iterate piece by piece
-for(int i=0; i<R;i+=1){
-
-for(int j=0; j<C;j+=1){
-
-printf("%f",  M[u][(i*C) + OFFSET + j]);
-
-M2.push_back( 
-  M[u][(i*C) + OFFSET + j]
-  );
-
-IDX+=1;
-}
-printf("\n");
-}
-
-OFFSET=IDX;
-
-printf("\n");
-}
-printf("\n\n");
-//Reset offset and IDX in arr
-OFFSET=0;
-IDX=0;
-
-}
-
-return M2;
-
-}
-
-//return M2;
-
-}
-
-//Rotate either part or whole of array by radians
-//User responsibility to define a logical range
-//0 -> N-1 Range by INDEX
-//Assume each vector contains x,y,z, 3
-//So you should!!!! start on a vector's first entry!!!
-//EX range can be [3,8] -> (3,4,5),(6,7,8)
-//int Axis... 0 for x, 1 for y, 2 for z
-void RotateArray(GLfloat* G, int* Range, GLfloat Radians,int Axis){
-
-int i=0;
-
-for(i=Range[0];i<Range[1]+1;i+=3){
-	switch(Axis){
-	//Each row is what the next value would be x,y,or z
-	case 0:
-	//Rotate by x axis 1 0 0
-		//	   0 c -s
-		//	   0 s c
- 	G[i]= G[i];
-	G[i+1]= G[i+1]*cos(Radians) - G[i+2]*sin(Radians);
-	G[i+1]=	G[i+1]*sin(Radians) + G[i+2]*cos(Radians);
-	break;
-	case 1:
-	//Rotate by y axis c 0 -s
-		//	   0 1 0
-		//	   s 0 c
-		//G[i+1]*cos(Radians) - G[i+2]*sin(Radians);
-        	//G[i+1]*sin(Radians) + G[i+2]*cos(Radians);
-
-	G[i]=G[i]*cos(Radians) - G[i+2]*sin(Radians);
-        G[i+1]=G[i+1];
-        G[i+1]=G[i]*sin(Radians) + G[i+2]*cos(Radians);
-	break;
-	case 2:
-	//Rotate by z axis c -s 0
-		//	   s  c 0
-		//  	   0  0	1
-	G[i]=G[i]*cos(Radians) - G[i+1]*sin(Radians);
-        G[i+1]=G[i]*sin(Radians) + G[i+1]*cos(Radians);
-        G[i+1]=G[i+1];
-	break;
-
-	deault:
-	printf("Bad Formatting for Axis of Rotation");
-	exit(-1);
-	break;
-	}
-}
-
-}
 
 void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 {
@@ -352,38 +108,44 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
         printf("RIGHT ARM");
         if(keys[GLFW_KEY_J]){
                 printf("\n Want to move right arm Counter Clockwise");
-
+		RArmR+=PI/2;
         }       
         else if(keys[GLFW_KEY_K]){
                 printf("\n Want to move right arm Clockwise");
-
+		RArmR-=PI/2;
         }       
-
+	else if(keys[GLFW_KEY_U]){
+                RArmR2+=PI/2;
+        }
+        else if(keys[GLFW_KEY_I]){
+                RArmR2-=PI/2;
+        }
+	
     } 
 	
-    if((keys[GLFW_KEY_Z]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_D]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
         printf("LEFT LEG");
         if(keys[GLFW_KEY_J]){
                 printf("\n Want to move left leg Counter Clockwise");
-
+		LLegR+=PI/2;
         }       
         else if(keys[GLFW_KEY_K]){
                 printf("\n Want to move left leg  Clockwise");
-
+		LLegR-=PI/2;
         }       
 
     } 	
  
 
-    if((keys[GLFW_KEY_X]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_F]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
         printf("RIGHT LEG");
         if(keys[GLFW_KEY_J]){
                 printf("\n Want to move right leg Counter Clockwise");
-
+		RLegR+=PI/2;
         }       
         else if(keys[GLFW_KEY_K]){
                 printf("\n Want to move right leg Clockwise");
-
+		RLegR2-=PI/2;
         }       
 
     } 
@@ -447,7 +209,6 @@ void mouse_callback(GLFWwindow *window,double xpos,double ypos)
     GLfloat sensitivity=0.05f;
     x_offset*=sensitivity;
     y_offset*=sensitivity;
-
     yaw+=x_offset;
     pitch+=y_offset;
 
@@ -636,22 +397,22 @@ int main()
     // then by which radians
     // then by offset, (WHERE IDX to START)
     // then by number of Textures to SKIP!!
-    GLfloat * Triangle2 = MatrixBuilder::Rotate(Triangle1,3,3,8,-PI/2,0,2).data();
-    GLfloat * Triangle3 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-PI,0,2).data();
-    GLfloat * Triangle4 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-3*PI/2,0,2).data();
-    
+    //GLfloat * Triangle2 = MatrixBuilder::Rotate(Triangle1,3,3,8,-PI/2,0,2).data();
+    //GLfloat * Triangle3 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-PI,0,2).data();
+    //GLfloat * Triangle4 =  MatrixBuilder::Rotate(Triangle1,3,3,8,-3*PI/2,0,2).data();
+     /*
      GLfloat* V[4]{
 	Triangle1,Triangle2,Triangle3,Triangle4
      };
-    
+     */
     GLfloat vertices[4*3*5*8];
  
-    GLfloat * v = MatrixBuilder::TwoToOne(V,4,3,5,8).data();
-    if(vertices==NULL){
- 	exit(-1);
-    } 
-    for(int i=0; i<4*3*5*8;i+=1)
-    vertices[i]=v[i];
+    //GLfloat * v = MatrixBuilder::TwoToOne(V,4,3,5,8).data();
+    //if(vertices==NULL){
+ //	exit(-1);
+   // } 
+    //for(int i=0; i<4*3*5*8;i+=1)
+    //vertices[i]=v[i];
  
     GLfloat Body[] = {
         //Body Front
@@ -967,26 +728,26 @@ int main()
     };
 
     //GLuint VAO[4],VBO[4];
-    glGenBuffers(6,VBO);
-    glGenVertexArrays(6,VAO);
+    glGenBuffers(9,VBO);
+    glGenVertexArrays(9,VAO);
 
     // bind vertex array object
-    glBindVertexArray(/* TO CHANGE  */VAO[0]);
+    //glBindVertexArray(/* TO CHANGE  */VAO[0]);
 
     // copy the vertices in a buffer
-    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[0]);
-    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(vertices),/* TO CHANGE  */vertices,GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[0]);
+    //glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(vertices),/* TO CHANGE  */vertices,GL_STATIC_DRAW);
 
     // set position attribute pointers
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */5*sizeof(GL_FLOAT),(GLvoid*)0);
+    //glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */5*sizeof(GL_FLOAT),(GLvoid*)0);
     
-    glEnableVertexAttribArray(0);
+    //glEnableVertexAttribArray(0);
     
     // set texture attribute pointers
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,/* TO CHANGE  */5*sizeof(GL_FLOAT),(GLvoid*)(3*sizeof(GLfloat)));
+  //  g//lVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,/* TO CHANGE  */5*sizeof(GL_FLOAT),(GLvoid*)(3*sizeof(GLfloat)));
     
-    glEnableVertexAttribArray(1);
-
+ //   /glEnableVertexAttribArray(1);
+//
     // unbind the vertex array object
     glBindVertexArray(0);
 
@@ -1011,7 +772,7 @@ int main()
 
     //END SETUP BODY
 
-    //SETUP RARM
+    //SETUP RARM SHOULDER
 
     // bind vertex array object
     glBindVertexArray(/* TO CHANGE  */VAO[2]);
@@ -1030,7 +791,28 @@ int main()
     // unbind the vertex array object
     glBindVertexArray(0);
 
-    //END SETUP RARM
+    //END SETUP RARM SHOULDER
+
+    //SETUP RARM ELBOW
+
+    // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[5]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[5]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(RArm),/* TO CHANGE  */RArm,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    //glEnableVertexAttribArray(1);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP RARM ELBOW
 
     //SETUP LARM SHOULDER
 
@@ -1181,47 +963,6 @@ int main()
 	glBindVertexArray(0);
 	//End Draw Body
 
-	//Draw RArm
-	VFShader2.Use();
-
-        glBindVertexArray(/* CHANGE */VAO[2]);
-
-        //Validate Shader Matrices
-
-        GLuint /* CHANGE */model_location2 = Validate(/* CHANGE */VFShader2,view,projection);
-
-            /////////////////////////
-
-            // world space transformations
-            glm::mat4 /* CHANGE */model2(1.0f);
-
-            model2=glm::translate(/* CHANGE */model2,/* CHANGE */RArm_Position);
-            model2=glm::rotate(/* CHANGE */model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
-
-            /////////////////////////////
-
-            glUniformMatrix4fv(/* CHANGE */ model_location2,1,GL_FALSE,glm::value_ptr(/* CHANGE */model2));
-
-            //TOP ARM
-	    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
-	    
-	    //BOTTOM ARM
-	    glDrawArrays(GL_TRIANGLE_STRIP,24,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,28,4);
-	    glDrawArrays(GL_TRIANGLE_STRIP,32,4);
-	    glDrawArrays(GL_TRIANGLE_STRIP,36,4);
-	    glDrawArrays(GL_TRIANGLE_STRIP,40,4);
-	    glDrawArrays(GL_TRIANGLE_STRIP,44,4);
-
-	glBindVertexArray(0);
-
-	//End Draw RArm
-
 	//Draw LArm
 	VFShader2.Use();
 
@@ -1236,7 +977,7 @@ int main()
             // world space transformations
             glm::mat4 /* CHANGE */model3(1.0f);
 
-            model2=glm::translate(/* CHANGE */model3,/* CHANGE */LArm_Position);
+            glm::mat4 model2=glm::translate(/* CHANGE */model3,/* CHANGE */LArm_Position);
             model2=glm::rotate(/* CHANGE */model3,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
 
 	    //MY SHOULDER    
@@ -1246,12 +987,6 @@ int main()
    	    model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR),glm::vec3(1.0f,0.0f,0.0f));
 
 	    model2=glm::translate(model2,-LArm_Shoulder);
-
-	    //model2=glm::translate(
-
-	    //
-
-            /////////////////////////////
 
             glUniformMatrix4fv(/* CHANGE */ model_location3,1,GL_FALSE,glm::value_ptr(/* CHANGE */model2));
 
@@ -1272,9 +1007,6 @@ int main()
 	glBindVertexArray(VAO[4]);	
 
 	GLuint /* CHANGE */model_location4 = Validate(/* CHANGE */VFShader2,view,projection);
-
-            /////////////////////////
-
             // world space transformations
             glm::mat4 /* CHANGE */model4(1.0f);
 
@@ -1295,15 +1027,7 @@ int main()
 
 	    model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR2),glm::vec3(1.0f,0.0f,0.0f));
 
-  	    model2=glm::translate(model2,/*CHANGE*/-LArm_Elbow);	    
-	    /////////////////////////////////
-
-            //model2=glm::translate(
-
-            //
-
-            /////////////////////////////
-
+  	    model2=glm::translate(model2,/*CHANGE*/-LArm_Elbow);	   
             glUniformMatrix4fv(/* CHANGE */ model_location4,1,GL_FALSE,glm::value_ptr(/* CHANGE */model2));
 
               glDrawArrays(GL_TRIANGLE_STRIP,24,4);
@@ -1315,6 +1039,91 @@ int main()
 
 	glBindVertexArray(0);
 	//End Draw LArm
+
+	//Draw RArm
+	VFShader2.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[2]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location5 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model5(1.0f);
+
+            model2=glm::translate(/* CHANGE */model5,/* CHANGE */RArm_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //MY SHOULDER    
+
+            model2=glm::translate(model2,/*CHANGE*/RArm_Shoulder);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/RArmR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RArm_Shoulder);
+
+            glUniformMatrix4fv(/* CHANGE */ model_location5,1,GL_FALSE,glm::value_ptr(model2));
+
+	    //TOP ARM
+            glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+
+	glBindVertexArray(0);
+
+        VFShader2.Use();
+
+        glBindVertexArray(VAO[5]);
+
+        GLuint /* CHANGE */model_location6 = Validate(/* CHANGE */VFShader2,view,projection);
+            // world space transformations
+            glm::mat4 /* CHANGE */model6(1.0f);
+
+            model2=glm::translate(/* CHANGE */model6,/* CHANGE */RArm_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //ROTATES WITH THE SHOULDER PARENT
+
+            model2=glm::translate(model2,/*CHANGE*/RArm_Shoulder);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/RArmR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RArm_Shoulder);
+            //////////////////////////////////
+
+            //ROTATES WITH ITS OWN PERMISSION
+            model2=glm::translate(model2,/*CHANGE*/RArm_Elbow);
+
+            model2=glm::rotate(model2,glm::radians(RArmR2),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RArm_Elbow);
+
+	    glUniformMatrix4fv(/* CHANGE */ model_location6,1,GL_FALSE,glm::value_ptr(model2));
+
+              glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,32,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,36,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,40,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,44,4);
+
+        glBindVertexArray(0);
+        //End Draw RArm
+
+	//Draw RLeg
+
+
+	//End Draw RLeg
+
+	//Draw LLeg
+
+	//End Draw LLeg
 
         //glBindVertexArray(0);
 	//glBindVertexArrat(VAO[1]);
