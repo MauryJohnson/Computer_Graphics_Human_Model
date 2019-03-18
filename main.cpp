@@ -12,6 +12,8 @@
 
 #include "Shader.h"
 
+GLuint VAO[6],VBO[6];
+
 bool keys[1024];
 GLfloat delta_time=0.0f;                // time between current frame and last frame
 GLfloat last_frame=0.0f;                // time of last frame
@@ -31,6 +33,20 @@ GLfloat mix_value=0.2f;
 GLfloat ROT = 0;
 
 #define PI 3.14159
+
+
+GLfloat * PLArm;
+GLfloat LArmR = 0;
+GLfloat LArmR2 = 0;
+GLfloat* PRArm;
+GLfloat RArmR = 0;
+GLfloat RARmR2 = 0;
+GLfloat* PLLeg;
+GLfloat LLegR = 0;
+GLfloat LLegR2 = 0;
+GLfloat* PRLeg;
+GLfloat RLegR = 0;
+GLfloat RLegR2 = 0;
 
 namespace MatrixBuilder{
 
@@ -225,6 +241,57 @@ return M2;
 
 }
 
+//Rotate either part or whole of array by radians
+//User responsibility to define a logical range
+//0 -> N-1 Range by INDEX
+//Assume each vector contains x,y,z, 3
+//So you should!!!! start on a vector's first entry!!!
+//EX range can be [3,8] -> (3,4,5),(6,7,8)
+//int Axis... 0 for x, 1 for y, 2 for z
+void RotateArray(GLfloat* G, int* Range, GLfloat Radians,int Axis){
+
+int i=0;
+
+for(i=Range[0];i<Range[1]+1;i+=3){
+	switch(Axis){
+	//Each row is what the next value would be x,y,or z
+	case 0:
+	//Rotate by x axis 1 0 0
+		//	   0 c -s
+		//	   0 s c
+ 	G[i]= G[i];
+	G[i+1]= G[i+1]*cos(Radians) - G[i+2]*sin(Radians);
+	G[i+1]=	G[i+1]*sin(Radians) + G[i+2]*cos(Radians);
+	break;
+	case 1:
+	//Rotate by y axis c 0 -s
+		//	   0 1 0
+		//	   s 0 c
+		//G[i+1]*cos(Radians) - G[i+2]*sin(Radians);
+        	//G[i+1]*sin(Radians) + G[i+2]*cos(Radians);
+
+	G[i]=G[i]*cos(Radians) - G[i+2]*sin(Radians);
+        G[i+1]=G[i+1];
+        G[i+1]=G[i]*sin(Radians) + G[i+2]*cos(Radians);
+	break;
+	case 2:
+	//Rotate by z axis c -s 0
+		//	   s  c 0
+		//  	   0  0	1
+	G[i]=G[i]*cos(Radians) - G[i+1]*sin(Radians);
+        G[i+1]=G[i]*sin(Radians) + G[i+1]*cos(Radians);
+        G[i+1]=G[i+1];
+	break;
+
+	deault:
+	printf("Bad Formatting for Axis of Rotation");
+	exit(-1);
+	break;
+	}
+}
+
+}
+
 void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 {
     if(action==GLFW_PRESS || action==GLFW_REPEAT) keys[key]=true;
@@ -261,13 +328,24 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 	printf("LEFT ARM");
 	if(keys[GLFW_KEY_J]){
 		printf("\n Want to move left arm Counter Clockwise");
-		
+		 int Range[] = {
+		0,47		
+		 };
+		 LArmR+=PI/2;
+		 //if(LArmR>=2*PI)
+		//RotateArray(PLArm, Range, LArmR,0);				
 	}	
 	else if(keys[GLFW_KEY_K]){
 		printf("\n Want to move left arm Clockwise");
-	  		
+	  	 //RotateArray(GLfloat* G, int* Range, GLfloat Radians,int Axis)
+		LArmR-=PI/2;
 	}	
-
+	else if(keys[GLFW_KEY_U]){
+		LArmR2+=PI/2;
+	}
+    	else if(keys[GLFW_KEY_I]){
+		LArmR2-=PI/2;
+	}
     }
 
     if((keys[GLFW_KEY_S]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
@@ -311,6 +389,7 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
     } 
 
 }
+
 
 
 void do_movement()
@@ -393,6 +472,27 @@ GLuint view_location1=glGetUniformLocation(VFShader.program,"view");
         GLuint model_location1=glGetUniformLocation(VFShader.program,"model");
 
 return model_location1;
+
+}
+
+void SetUp3Array(GLfloat* P,int IDX,int DIM){
+
+
+    // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[IDX]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[IDX]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(GLfloat),/* TO CHANGE  */P,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,DIM,GL_FLOAT,GL_FALSE,/* TO CHANGE  */DIM*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
 
 }
 
@@ -684,9 +784,12 @@ int main()
         AX1,AY1-AY2-0.1f,AZ2
 
     };
-
+    PRArm = RArm;
     glm::vec3 RArm_Position(0.0f,0.0f,0.0f);
+    glm::vec3 RArm_Shoulder((AX1)/2.0,AY2,AZ2/2.0);
+    glm::vec3 RArm_Elbow((AX2)/2.0,(AY1-0.1f)/2.0,AZ2/2.0);
 
+    //AX2,AY1-0.1f,AZ1,
     GLfloat LArm[] = {
         //Left Arm
         //Front
@@ -764,8 +867,13 @@ int main()
         AX1+1.25f,AY1-AY2-0.1f,AZ2
 
     };
+    PLArm = LArm;
     glm::vec3 LArm_Position(0.0f,0.0f,0.0f);
+    glm::vec3 LArm_Shoulder((AX2+1.25f)/2.0,AY2,AZ2/2.0);
+    glm::vec3 LArm_Elbow((AX2+1.25f)/2.0,(AY1-0.1f)/2.0,AZ2/2.0);
 
+    //AX2+1.25f,AY2,AZ1,
+        //AX2+1.25f,AY2,AZ2,
     /*GLfloat vertices[]={
         
 	//T1 TRIANGLE FACE
@@ -858,9 +966,9 @@ int main()
 
     };
 
-    GLuint VAO[4],VBO[4];
-    glGenBuffers(4,VBO);
-    glGenVertexArrays(4,VAO);
+    //GLuint VAO[4],VBO[4];
+    glGenBuffers(6,VBO);
+    glGenVertexArrays(6,VAO);
 
     // bind vertex array object
     glBindVertexArray(/* TO CHANGE  */VAO[0]);
@@ -924,7 +1032,9 @@ int main()
 
     //END SETUP RARM
 
-    //SETUP LARM
+    //SETUP LARM SHOULDER
+
+    //SetUp3Array(LArm,3,3);
 
     // bind vertex array object
     glBindVertexArray(/* TO CHANGE  */VAO[3]);
@@ -943,7 +1053,26 @@ int main()
     // unbind the vertex array object
     glBindVertexArray(0);
 
-    //END SETUP LARM
+    //END SETUP LARM SHOULDER
+
+    //SETUP LARM ELBOW
+
+    // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[4]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[4]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(LArm),/* TO CHANGE  */LArm,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP LARM ELBOW
 
     //Shader VFShader("shader.vs","shader.frag");
 
@@ -998,27 +1127,27 @@ int main()
         ///////////////////////
 
         // draw
-        glBindVertexArray(VAO[0]);
+//        glBindVertexArray(VAO[0]);
         
-	for(GLuint i=0;i<5;i+=2)
-        {
-
- 	   GLuint model_location=glGetUniformLocation(our_shader.program,"model");
+//	for(GLuint i=0;i<5;i+=2)
+  //      {
+//
+ //	   GLuint model_location=glGetUniformLocation(our_shader.program,"model");
 
             // world space transform
-            glm::mat4 model(1.0f);
+   //         glm::mat4 model(1.0f);
             
-  	    model=glm::translate(model,cube_positions[i]);
-            model=glm::rotate(model,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
+  ///	    model=glm::translate(model,cube_positions[i]);
+     //       model=glm::rotate(model,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
             
-	    model=glm::translate(model,cube_positions[i+1]);
+//	    model=glm::translate(model,cube_positions[i+1]);
 
-    	    glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
+  //  	    glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
 
-            glDrawArrays(GL_TRIANGLES,0,/*36*//*18*/24);
+    //        glDrawArrays(GL_TRIANGLES,0,/*36*//*18*/24);
             
- 	}
-	glBindVertexArray(0);
+ //	}
+//	glBindVertexArray(0);
 
 	//Draw Body
 	VFShader.Use();
@@ -1110,6 +1239,18 @@ int main()
             model2=glm::translate(/* CHANGE */model3,/* CHANGE */LArm_Position);
             model2=glm::rotate(/* CHANGE */model3,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
 
+	    //MY SHOULDER    
+
+	    model2=glm::translate(model2,LArm_Shoulder);	
+	 
+   	    model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR),glm::vec3(1.0f,0.0f,0.0f));
+
+	    model2=glm::translate(model2,-LArm_Shoulder);
+
+	    //model2=glm::translate(
+
+	    //
+
             /////////////////////////////
 
             glUniformMatrix4fv(/* CHANGE */ model_location3,1,GL_FALSE,glm::value_ptr(/* CHANGE */model2));
@@ -1122,14 +1263,55 @@ int main()
             glDrawArrays(GL_TRIANGLE_STRIP,16,4);
             glDrawArrays(GL_TRIANGLE_STRIP,20,4);
 
-            //BOTTOM ARM
-            glDrawArrays(GL_TRIANGLE_STRIP,24,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,28,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,32,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,36,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,40,4);
-            glDrawArrays(GL_TRIANGLE_STRIP,44,4);
 
+            //BOTTOM ARM
+	glBindVertexArray(0);
+	
+	VFShader2.Use();
+
+	glBindVertexArray(VAO[4]);	
+
+	GLuint /* CHANGE */model_location4 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model4(1.0f);
+
+            model2=glm::translate(/* CHANGE */model4,/* CHANGE */LArm_Position);
+            model2=glm::rotate(/* CHANGE */model4,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+	    //ROTATES WITH THE SHOULDER PARENT
+		
+            model2=glm::translate(model2,LArm_Shoulder);
+
+            model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,-LArm_Shoulder);
+	    //////////////////////////////////
+ 
+   	    //ROTATES WITH ITS OWN PERMISSION
+	    model2=glm::translate(model2,/*CHANGE*/LArm_Elbow);
+
+	    model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR2),glm::vec3(1.0f,0.0f,0.0f));
+
+  	    model2=glm::translate(model2,/*CHANGE*/-LArm_Elbow);	    
+	    /////////////////////////////////
+
+            //model2=glm::translate(
+
+            //
+
+            /////////////////////////////
+
+            glUniformMatrix4fv(/* CHANGE */ model_location4,1,GL_FALSE,glm::value_ptr(/* CHANGE */model2));
+
+              glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,32,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,36,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,40,4);
+              glDrawArrays(GL_TRIANGLE_STRIP,44,4);
 
 	glBindVertexArray(0);
 	//End Draw LArm
