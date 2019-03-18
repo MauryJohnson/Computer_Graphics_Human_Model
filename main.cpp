@@ -133,6 +133,12 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
                 printf("\n Want to move left leg  Clockwise");
 		LLegR-=PI/2;
         }       
+	else if(keys[GLFW_KEY_U]){
+                LLegR2+=PI/2;
+        }
+        else if(keys[GLFW_KEY_I]){
+                LLegR2-=PI/2;
+        }
 
     } 	
  
@@ -145,9 +151,14 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
         }       
         else if(keys[GLFW_KEY_K]){
                 printf("\n Want to move right leg Clockwise");
-		RLegR2-=PI/2;
+		RLegR-=PI/2;
         }       
-
+	else if(keys[GLFW_KEY_U]){
+                RLegR2+=PI/2;
+        }
+        else if(keys[GLFW_KEY_I]){
+                RLegR2-=PI/2;
+        }
     } 
 
 }
@@ -633,6 +644,205 @@ int main()
     glm::vec3 LArm_Shoulder((AX2+1.25f)/2.0,AY2,AZ2/2.0);
     glm::vec3 LArm_Elbow((AX2+1.25f)/2.0,(AY1-0.1f)/2.0,AZ2/2.0);
 
+    //Alter values slightly
+
+    AX2 = -0.5f;
+    AX1 = -0.1f;
+
+    AY2 = -1.5f;
+    AY1 = -0.75f;
+
+    AZ2 = -0.25f;
+    AZ1 = 0.0f;
+
+
+    GLfloat RLeg[] = {
+        //Right Arm
+
+	//Front
+        AX2,AY2,AZ1,
+        AX1,AY2,AZ1,
+        AX2,AY1,AZ1,
+        AX1,AY1,AZ1,
+
+	//Bottom
+	AX2,AY1,AZ1,
+        AX2,AY1,AZ2,
+	AX1,AY1,AZ1,
+        AX1,AY1,AZ2,
+	
+	//Back
+	AX2,AY2,AZ2,
+        AX1,AY2,AZ2,
+        AX2,AY1,AZ2,
+        AX1,AY1,AZ2,
+	
+	//Top
+	AX2,AY2,AZ1,
+        AX2,AY2,AZ2,
+        AX1,AY2,AZ1,
+        AX1,AY2,AZ2,
+
+	//Left
+	AX2,AY1,AZ1,
+	AX2,AY1,AZ2,
+	AX2,AY2,AZ1,
+	AX2,AY2,AZ2,
+
+	//Right
+	AX1,AY1,AZ1,
+        AX1,AY1,AZ2,
+        AX1,AY2,AZ1,
+        AX1,AY2,AZ2,
+
+/*
+	//Right
+	-0.25f,0.0f,0.0f,
+        //-0.25f,0.0f,-0.3f,
+        -0.25f,0.75f,0.0f,
+        -0.25f,0.0f,-0.3f,
+	-0.25f,0.75f,-0.3f
+*/
+    	//Right Arm Second Half!!
+
+	//TOP OF Knee, BOTTOM
+	AX2,AY1-0.1f,AZ1,
+        AX2,AY1-0.1f,AZ2,
+        AX1,AY1-0.1f,AZ1,
+        AX1,AY1-0.1f,AZ2,
+
+	//Bottom Of Knee, BOTTOM
+	AX2,AY1+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX1,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ2,
+
+	//Front of Bottom Leg
+	AX2,AY2+AY1-0.1f,AZ1,
+        AX1,AY2+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ1,
+
+	//Left of Bottom Leg
+	AX2,AY1+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX2,AY2+AY1-0.1f,AZ1,
+        AX2,AY2+AY1-0.1f,AZ2,
+
+	//Right of Bottom Leg
+	AX1,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ2,
+        AX1,AY2+AY1-0.1f,AZ1,
+        AX1,AY2+AY1-0.1f,AZ2,
+
+	//Back of Bottom Leg		
+	AX2,AY2+AY1-0.1f,AZ2,
+        AX1,AY2+AY1-0.1f,AZ2,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX1,AY1+AY1-0.1f,AZ2
+
+    };
+    PRLeg = RLeg;
+    glm::vec3 RLeg_Position(0.0f,0.0f,0.0f);
+    glm::vec3 RLeg_Hip((AX2+AX1)/2.0,AY1,AZ2/2.0);
+    glm::vec3 RLeg_Knee((AX2+AX1)/2.0,(2*AY1-0.1f),AZ2/2.0);
+
+    AX2+=0.6f;
+    AX1+=0.6f;
+ 
+     GLfloat LLeg[] = {
+        //Right Arm
+
+	//Front
+        AX2,AY2,AZ1,
+        AX1,AY2,AZ1,
+        AX2,AY1,AZ1,
+        AX1,AY1,AZ1,
+
+	//Bottom
+	AX2,AY1,AZ1,
+        AX2,AY1,AZ2,
+	AX1,AY1,AZ1,
+        AX1,AY1,AZ2,
+	
+	//Back
+	AX2,AY2,AZ2,
+        AX1,AY2,AZ2,
+        AX2,AY1,AZ2,
+        AX1,AY1,AZ2,
+	
+	//Top
+	AX2,AY2,AZ1,
+        AX2,AY2,AZ2,
+        AX1,AY2,AZ1,
+        AX1,AY2,AZ2,
+
+	//Left
+	AX2,AY1,AZ1,
+	AX2,AY1,AZ2,
+	AX2,AY2,AZ1,
+	AX2,AY2,AZ2,
+
+	//Right
+	AX1,AY1,AZ1,
+        AX1,AY1,AZ2,
+        AX1,AY2,AZ1,
+        AX1,AY2,AZ2,
+
+/*
+	//Right
+	-0.25f,0.0f,0.0f,
+        //-0.25f,0.0f,-0.3f,
+        -0.25f,0.75f,0.0f,
+        -0.25f,0.0f,-0.3f,
+	-0.25f,0.75f,-0.3f
+*/
+    	//Right Arm Second Half!!
+
+	//TOP OF Knee, BOTTOM
+	AX2,AY1-0.1f,AZ1,
+        AX2,AY1-0.1f,AZ2,
+        AX1,AY1-0.1f,AZ1,
+        AX1,AY1-0.1f,AZ2,
+
+	//Bottom Of Knee, BOTTOM
+	AX2,AY1+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX1,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ2,
+
+	//Front of Bottom Leg
+	AX2,AY2+AY1-0.1f,AZ1,
+        AX1,AY2+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ1,
+
+	//Left of Bottom Leg
+	AX2,AY1+AY1-0.1f,AZ1,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX2,AY2+AY1-0.1f,AZ1,
+        AX2,AY2+AY1-0.1f,AZ2,
+
+	//Right of Bottom Leg
+	AX1,AY1+AY1-0.1f,AZ1,
+        AX1,AY1+AY1-0.1f,AZ2,
+        AX1,AY2+AY1-0.1f,AZ1,
+        AX1,AY2+AY1-0.1f,AZ2,
+
+	//Back of Bottom Leg		
+	AX2,AY2+AY1-0.1f,AZ2,
+        AX1,AY2+AY1-0.1f,AZ2,
+        AX2,AY1+AY1-0.1f,AZ2,
+        AX1,AY1+AY1-0.1f,AZ2
+
+    };    
+
+    PLLeg = LLeg;
+    glm::vec3 LLeg_Position(0.0f,0.0f,0.0f);
+    glm::vec3 LLeg_Hip((AX1+AX2)/2.0,AY1,AZ2/2.0);
+    glm::vec3 LLeg_Knee((AX2+AX1)/2.0,(2*AY1-0.1f),AZ2/2.0);
+
+
     //AX2+1.25f,AY2,AZ1,
         //AX2+1.25f,AY2,AZ2,
     /*GLfloat vertices[]={
@@ -855,6 +1065,82 @@ int main()
     glBindVertexArray(0);
 
     //END SETUP LARM ELBOW
+
+    //SETUP RLEG HIP
+
+     // bind vertex array object
+     glBindVertexArray(/* TO CHANGE  */VAO[0]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(RLeg),/* TO CHANGE  */RLeg,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP RLEG HIP
+
+    //SETUP RLEG KNEE
+ 
+    // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[6]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[6]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(RLeg),/* TO CHANGE  */RLeg,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP RLEG KNEE
+
+    //SETUP LLEG HIP
+
+     // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[7]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[7]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(LLeg),/* TO CHANGE  */LLeg,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP LLEG HIP
+
+    //SETUP LLEG KNEE
+
+     // bind vertex array object
+    //glBindVertexArray(/* TO CHANGE  */VAO[8]);
+
+    // copy the vertices in a buffer
+    //glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[8]);
+    //glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */sizeof(LArm),/* TO CHANGE  */LArm,GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    //glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    //glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    //glBindVertexArray(0);
+
+    //END SETUP LLEG KNEE
 
     //Shader VFShader("shader.vs","shader.frag");
 
@@ -1118,11 +1404,166 @@ int main()
 
 	//Draw RLeg
 
+	VFShader2.Use();
 
+        glBindVertexArray(/* CHANGE */VAO[0]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location7 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model7(1.0f);
+
+            model2=glm::translate(/* CHANGE */model7,/* CHANGE */RLeg_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //MY HIP 
+
+            model2=glm::translate(model2,/*CHANGE*/RLeg_Hip);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/RLegR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RLeg_Hip);
+
+            glUniformMatrix4fv(/* CHANGE */ model_location7,1,GL_FALSE,glm::value_ptr(model2));
+		
+  	    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+
+        glBindVertexArray(0);
+
+	//DRAW RIGHT KNEE
+	VFShader2.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[6]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location8 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model8(1.0f);
+
+            model2=glm::translate(/* CHANGE */model8,/* CHANGE */RLeg_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //MY HIP
+            model2=glm::translate(model2,/*CHANGE*/RLeg_Hip);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/RLegR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RLeg_Hip);
+
+	    //MY KNEE
+	    model2=glm::translate(model2,/*CHANGE*/RLeg_Knee);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/RLegR2),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-RLeg_Knee);
+
+            glUniformMatrix4fv(/* CHANGE */ model_location7,1,GL_FALSE,glm::value_ptr(model2));
+
+	    //glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,32,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,36,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,40,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,44,4);
+
+        glBindVertexArray(0);	
+	
 	//End Draw RLeg
 
 	//Draw LLeg
 
+        VFShader2.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[7]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location9 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model9(1.0f);
+
+            model2=glm::translate(/* CHANGE */model9,/* CHANGE */LLeg_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //MY HIP 
+
+            model2=glm::translate(model2,/*CHANGE*/LLeg_Hip);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/LLegR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-LLeg_Hip);
+
+            glUniformMatrix4fv(/* CHANGE */ model_location9,1,GL_FALSE,glm::value_ptr(model2));
+
+	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+
+        glBindVertexArray(0);
+
+  	VFShader2.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[7]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location10 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model10(1.0f);
+
+            model2=glm::translate(/* CHANGE */model10,/* CHANGE */LLeg_Position);
+            model2=glm::rotate(model2,glm::radians(ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+            //MY HIP 
+
+            model2=glm::translate(model2,/*CHANGE*/LLeg_Hip);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/LLegR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-LLeg_Hip);
+
+ 	    //MY KNEE
+
+	    model2=glm::translate(model2,/*CHANGE*/LLeg_Knee);
+
+            model2=glm::rotate(model2,glm::radians(/*CHANGE*/LLegR2),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,/*CHANGE*/-LLeg_Knee);
+
+
+            glUniformMatrix4fv(/* CHANGE */ model_location10,1,GL_FALSE,glm::value_ptr(model2));
+
+	    //glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,32,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,36,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,40,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,44,4);
+
+	glBindVertexArray(0);
+	   
 	//End Draw LLeg
 
         //glBindVertexArray(0);
