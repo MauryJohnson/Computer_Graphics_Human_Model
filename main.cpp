@@ -12,7 +12,7 @@
 
 #include "Shader.h"
 
-GLuint VAO[9],VBO[9];
+GLuint VAO[10],VBO[10];
 
 bool keys[1024];
 GLfloat delta_time=0.0f;                // time between current frame and last frame
@@ -48,6 +48,196 @@ GLfloat* PRLeg;
 GLfloat RLegR = 0;
 GLfloat RLegR2 = 0;
 
+
+/**
+Create cube with center pointe at X,Y,Z coordinate
+*/
+std::vector<GLfloat> CreateCube(GLfloat X, GLfloat Y, GLfloat Z, GLfloat L){
+std::vector<GLfloat> Cube;
+
+Cube.reserve(48);
+
+//L/2, L/2, sqrt(L/2^2 + L/2^2)
+//Create 8 points
+
+GLfloat Plane1 = Y+L;
+
+
+GLfloat P1[] = {
+X-L/2,Y+L/2,Z-L/2,
+X+L/2,Y+L/2,Z-L/2,
+X+L/2,Y+L/2,Z+L/2,
+X-L/2,Y+L/2,Z+L/2
+};
+
+GLfloat P2[] = {
+X-L/2,Y-L/1.25,Z-L/2,
+X+L/2,Y-L/1.25,Z-L/2,
+X+L/2,Y-L/1.25,Z+L/2,
+X-L/2,Y-L/1.25,Z+L/2
+};
+
+//for(int i=0; i<4; i+=1){
+//Cube.push_back(P1[i]);
+//Cube.push_back(P2[i]);
+//}
+
+//for(int i=0; i<4;i+=1)
+//Cube.push_back(P2[i]);
+
+//Front Face
+Cube.push_back(P1[0]);
+Cube.push_back(P1[1]);
+Cube.push_back(P1[2]);
+
+Cube.push_back(P1[3]);
+Cube.push_back(P1[4]);
+Cube.push_back(P1[5]);
+
+Cube.push_back(P2[0]);
+Cube.push_back(P2[1]);
+Cube.push_back(P2[2]);
+
+Cube.push_back(P2[3]);
+Cube.push_back(P2[4]);
+Cube.push_back(P2[5]);
+
+
+//Right Face
+Cube.push_back(P1[3]);
+Cube.push_back(P1[4]);
+Cube.push_back(P1[5]);
+
+Cube.push_back(P1[6]);
+Cube.push_back(P1[7]);
+Cube.push_back(P1[8]);
+
+Cube.push_back(P2[3]);
+Cube.push_back(P2[4]);
+Cube.push_back(P2[5]);
+
+Cube.push_back(P2[6]);
+Cube.push_back(P2[7]);
+Cube.push_back(P2[8]);
+
+//Back Face
+Cube.push_back(P1[6]);
+Cube.push_back(P1[7]);
+Cube.push_back(P1[8]);
+
+Cube.push_back(P1[9]);
+Cube.push_back(P1[10]);
+Cube.push_back(P1[11]);
+
+Cube.push_back(P2[6]);
+Cube.push_back(P2[7]);
+Cube.push_back(P2[8]);
+
+Cube.push_back(P2[9]);
+Cube.push_back(P2[10]);
+Cube.push_back(P2[11]);
+
+//Left Face
+Cube.push_back(P1[9]);
+Cube.push_back(P1[10]);
+Cube.push_back(P1[11]);
+
+Cube.push_back(P1[0]);
+Cube.push_back(P1[1]);
+Cube.push_back(P1[2]);
+
+Cube.push_back(P2[9]);
+Cube.push_back(P2[10]);
+Cube.push_back(P2[11]);
+
+Cube.push_back(P2[0]);
+Cube.push_back(P2[1]);
+Cube.push_back(P2[2]);
+
+//TOP
+for(int i=0; i<12;i+=1)
+Cube.push_back(P1[i]);
+//BOTTOM
+for(int i=0; i<12;i+=1)
+Cube.push_back(P2[i]);
+
+return Cube;
+}
+
+/**
+Create circle from bottom up
+*/
+std::vector<GLfloat> CreateSphere(GLfloat X, GLfloat Y, GLfloat Z, GLfloat Radius,GLfloat StepSize,GLfloat RStepSize){
+
+std::vector<GLfloat> Points;
+Points.reserve(1000);
+
+GLfloat y1 = Y;
+
+printf("ITerate from %f to %f",y1,y1+Radius);
+
+//GLfloat R = Radius;
+GLfloat R = 0;
+
+//Iterate from y1 to y1+Radius
+for(; y1<Y+Radius;y1+=StepSize){
+
+//X and Z PLANE circles
+GLfloat x = X;
+GLfloat z = Z;
+//Iterate from radians 0 to 2pi with its step size..
+
+for(GLfloat r=0; r<2*PI;r+=RStepSize){
+	//X
+	Points.push_back(x+(GLfloat)R*cos(r));
+	//Y
+	Points.push_back(y1);
+	//Z
+	Points.push_back(z+(GLfloat)R*sin(r));
+}
+//if(Radius-RStepSize>0)
+        //Radius+=RStepSize;
+if(R+RStepSize<=Radius)
+	R+=RStepSize;
+//else
+//break;
+}
+
+printf("ITerate from %f to %f",y1,y1+Radius);
+
+/*
+//And then from y1+Radius to y1+2*Radius
+for(y1=Y+Radius; y1<Y+2*Radius;y1+=StepSize/2){
+//X and Z PLANE CIRCLES
+GLfloat x = X;
+GLfloat z = Z;
+//Iterate from radians 0 to 2pi with its step size..
+for(GLfloat r=2*PI; r>0;r-=RStepSize){
+	//X
+        Points.push_back(x+(GLfloat)R*cos(r));
+        //Y
+        Points.push_back(y1);
+        //Z
+        Points.push_back(z+(GLfloat)R*sin(r));
+}
+
+if(R-RStepSize>0)
+	R-=RStepSize;
+//else
+//break;
+
+}
+*/
+printf("\n SPHERE \n");
+int i=0;
+//for(i=0; i<Points.size();i+=1){
+
+//	printf("%f",Points[i]);
+//}
+
+return Points;
+}
+
 void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 {
     if(action==GLFW_PRESS || action==GLFW_REPEAT) keys[key]=true;
@@ -80,9 +270,9 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 	ROT+=PI/2;
     }
 
-    if((keys[GLFW_KEY_A]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_A] || keys[GLFW_KEY_1] || keys[GLFW_KEY_2] || keys[GLFW_KEY_3] || keys[GLFW_KEY_4]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
 	printf("LEFT ARM");
-	if(keys[GLFW_KEY_J]){
+	if(keys[GLFW_KEY_J] || keys[GLFW_KEY_1]){
 		printf("\n Want to move left arm Counter Clockwise");
 		 int Range[] = {
 		0,47		
@@ -91,72 +281,72 @@ void key_callback(GLFWwindow* window,int key,int scancode,int action,int mode)
 		 //if(LArmR>=2*PI)
 		//RotateArray(PLArm, Range, LArmR,0);				
 	}	
-	else if(keys[GLFW_KEY_K]){
+	else if(keys[GLFW_KEY_K] || keys[GLFW_KEY_2]){
 		printf("\n Want to move left arm Clockwise");
 	  	 //RotateArray(GLfloat* G, int* Range, GLfloat Radians,int Axis)
 		LArmR-=PI/2;
 	}	
-	else if(keys[GLFW_KEY_U]){
+	else if(keys[GLFW_KEY_U] || keys[GLFW_KEY_3]){
 		LArmR2+=PI/2;
 	}
-    	else if(keys[GLFW_KEY_I]){
+    	else if(keys[GLFW_KEY_I] || keys[GLFW_KEY_4]){
 		LArmR2-=PI/2;
 	}
     }
 
-    if((keys[GLFW_KEY_S]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_S]|| keys[GLFW_KEY_5] || keys[GLFW_KEY_6] || keys[GLFW_KEY_7] || keys[GLFW_KEY_8]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
         printf("RIGHT ARM");
-        if(keys[GLFW_KEY_J]){
+        if(keys[GLFW_KEY_J] || keys[GLFW_KEY_5]){
                 printf("\n Want to move right arm Counter Clockwise");
 		RArmR+=PI/2;
         }       
-        else if(keys[GLFW_KEY_K]){
+        else if(keys[GLFW_KEY_K] || keys[GLFW_KEY_6]){
                 printf("\n Want to move right arm Clockwise");
 		RArmR-=PI/2;
         }       
-	else if(keys[GLFW_KEY_U]){
+	else if(keys[GLFW_KEY_U] || keys[GLFW_KEY_7]){
                 RArmR2+=PI/2;
         }
-        else if(keys[GLFW_KEY_I]){
+        else if(keys[GLFW_KEY_I] || keys[GLFW_KEY_8]){
                 RArmR2-=PI/2;
         }
 	
     } 
 	
-    if((keys[GLFW_KEY_D]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_D] || keys[GLFW_KEY_9] || keys[GLFW_KEY_0] || keys[GLFW_KEY_Z] || keys[GLFW_KEY_X]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
         printf("LEFT LEG");
-        if(keys[GLFW_KEY_J]){
+        if(keys[GLFW_KEY_J] || keys[GLFW_KEY_9]){
                 printf("\n Want to move left leg Counter Clockwise");
 		LLegR+=PI/2;
         }       
-        else if(keys[GLFW_KEY_K]){
+        else if(keys[GLFW_KEY_K] || keys[GLFW_KEY_0]){
                 printf("\n Want to move left leg  Clockwise");
 		LLegR-=PI/2;
         }       
-	else if(keys[GLFW_KEY_U]){
+	else if(keys[GLFW_KEY_U] || keys[GLFW_KEY_Z]){
                 LLegR2+=PI/2;
         }
-        else if(keys[GLFW_KEY_I]){
+        else if(keys[GLFW_KEY_I] || keys[GLFW_KEY_X]){
                 LLegR2-=PI/2;
         }
 
     } 	
  
 
-    if((keys[GLFW_KEY_F]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
+    if((keys[GLFW_KEY_F] || keys[GLFW_KEY_C] || keys[GLFW_KEY_V] || keys[GLFW_KEY_B] || keys[GLFW_KEY_N]/* && (action==GLFW_PRESS) || key==GLFW_KEY_A && (action==GLFW_REPEAT)*/)){
         printf("RIGHT LEG");
-        if(keys[GLFW_KEY_J]){
+        if(keys[GLFW_KEY_J] || keys[GLFW_KEY_C]){
                 printf("\n Want to move right leg Counter Clockwise");
 		RLegR+=PI/2;
         }       
-        else if(keys[GLFW_KEY_K]){
+        else if(keys[GLFW_KEY_K] || keys[GLFW_KEY_V]){
                 printf("\n Want to move right leg Clockwise");
 		RLegR-=PI/2;
         }       
-	else if(keys[GLFW_KEY_U]){
+	else if(keys[GLFW_KEY_U] || keys[GLFW_KEY_B]){
                 RLegR2+=PI/2;
         }
-        else if(keys[GLFW_KEY_I]){
+        else if(keys[GLFW_KEY_I] || keys[GLFW_KEY_N]){
                 RLegR2-=PI/2;
         }
     } 
@@ -270,6 +460,15 @@ void SetUp3Array(GLfloat* P,int IDX,int DIM){
 
 int main()
 {
+
+    GLfloat HX = 0.0f;
+    GLfloat HZ = 0.0f;
+    //std::vector<GLfloat> Head = CreateSphere(0.0f,0.75f,0.0f,0.5f,0.01f,PI/128);
+    std::vector<GLfloat> Head = CreateCube(0.0f,1.0f,-0.125f,0.5f);
+
+    glm::vec3 Head_Position(0.0f,1.5f,0.0f);
+
+
     glfwInit();
 #if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
@@ -644,6 +843,9 @@ int main()
     glm::vec3 LArm_Shoulder((AX2+1.25f)/2.0,AY2,AZ2/2.0);
     glm::vec3 LArm_Elbow((AX2+1.25f)/2.0,(AY1-0.1f)/2.0,AZ2/2.0);
 
+    std::vector<GLfloat> LArmElbow = CreateCube(AX2+1.30f,AY1-0.1f,AZ1,0.2);
+    glm::vec3 LArmElbow_Position(0.0f,0.0f,0.0f);
+
     //Alter values slightly
 
     AX2 = -0.5f;
@@ -938,8 +1140,8 @@ int main()
     };
 
     //GLuint VAO[4],VBO[4];
-    glGenBuffers(9,VBO);
-    glGenVertexArrays(9,VAO);
+    glGenBuffers(10,VBO);
+    glGenVertexArrays(10,VAO);
 
     // bind vertex array object
     //glBindVertexArray(/* TO CHANGE  */VAO[0]);
@@ -1124,6 +1326,44 @@ int main()
     //END SETUP LLEG HIP
 
     //SETUP LLEG KNEE
+ 
+    //SETUP HEAD SPHERE
+
+	 // bind vertex array object
+    glBindVertexArray(/* TO CHANGE  */VAO[8]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[8]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */Head.size()*sizeof(GLfloat),/* TO CHANGE  */Head.data(),GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP HEAD SPHERE
+
+    //SETUP LARM ELBOW
+
+    glBindVertexArray(/* TO CHANGE  */VAO[9]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[9]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */LArmElbow.size()*sizeof(GLfloat),/* TO CHANGE  */LArmElbow.data(),GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP LARM ELBOW
+
 
      // bind vertex array object
     //glBindVertexArray(/* TO CHANGE  */VAO[8]);
@@ -1142,6 +1382,9 @@ int main()
 
     //END SETUP LLEG KNEE
 
+    //CreateSphere(0.0f,0.0f,0.0f,2.0f,0.1f,PI/6);
+ 
+
     //Shader VFShader("shader.vs","shader.frag");
 
     // view space transform
@@ -1158,6 +1401,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     //Shader VFShader("transform.vs","shader.frag");
+
+    //CreateSphere(0.0f,0.0f,0.0f,2.0f,0.1f,PI/12);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -1566,6 +1811,78 @@ int main()
 	   
 	//End Draw LLeg
 
+	//Draw My Head
+
+	VFShader2.Use();
+
+	glBindVertexArray(/* CHANGE */VAO[8]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location11 = Validate(/* CHANGE */VFShader2,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model11(1.0f);
+
+            model2=glm::translate(/* CHANGE */model11,/* CHANGE */Head_Position);
+
+	    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+	    glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+	    glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+	    glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+	    glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+	glBindVertexArray(0);
+ 	//
+
+	//Draw LArm Elbow
+	
+	 VFShader.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[9]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location12 = Validate(/* CHANGE */VFShader,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model12(1.0f);
+
+            model2=glm::translate(/* CHANGE */model12,/* CHANGE */LArmElbow_Position);
+            
+	    model2=glm::rotate(/* CHANGE */model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+	    //ARM TRANS
+	    model2=glm::translate(model2,LArm_Shoulder);
+
+            model2=glm::rotate(model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/LArmR),glm::vec3(1.0f,0.0f,0.0f));
+
+            model2=glm::translate(model2,-LArm_Shoulder);
+	    //////////	
+
+	    glUniformMatrix4fv(/* CHANGE */ model_location12,1,GL_FALSE,glm::value_ptr(model2));
+
+ 
+
+	    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,28,4);
+
+	
+	glBindVertexArray(0);
+	//End Draw LArm Elbow
+
         //glBindVertexArray(0);
 	//glBindVertexArrat(VAO[1]);
 
@@ -1573,8 +1890,8 @@ int main()
     }
 
     // deallocate all resources
-    glDeleteVertexArrays(4,VAO);
-    glDeleteBuffers(4,VBO);
+    glDeleteVertexArrays(10,VAO);
+    glDeleteBuffers(10,VBO);
     // terminate GLFW
     glfwTerminate();
 
