@@ -2266,6 +2266,8 @@ int main()
 
     // deallocate all resources
     Head.clear();
+    Eye1.clear();
+    Eye2.clear();
     LArmElbow.clear();
     RArmElbow.clear();
     LLegKnee.clear();
