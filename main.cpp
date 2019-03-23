@@ -12,7 +12,7 @@
 
 #include "Shader.h"
 
-GLuint VAO[13],VBO[13];
+GLuint VAO[15],VBO[15];
 
 bool keys[1024];
 GLfloat delta_time=0.0f;                // time between current frame and last frame
@@ -496,6 +496,14 @@ int main()
     //std::vector<GLfloat> Head = CreateSphere(0.0f,0.75f,0.0f,0.5f,0.01f,PI/128);
     std::vector<GLfloat> Head = CreateCube(0.0f,1.0f,-0.125f,0.5f);
 
+    std::vector<GLfloat> Eye1 = CreateCube(-0.1f,1.15f,0.1f,0.1f);
+
+    glm::vec3 RightEye_Position(-0.1f,1.15f,0.0f);
+
+    std::vector<GLfloat> Eye2 = CreateCube(0.1f,1.15f,0.1f,0.1f);
+
+    glm::vec3 LeftEye_Position(0.1f,1.15f,0.0f);
+
     glm::vec3 Head_Position(0.0f,0.15f,0.0f);
 
 
@@ -533,8 +541,8 @@ int main()
     projection=glm::perspective(glm::radians(45.0f),(float)width/height,0.1f,100.0f);
 
     glfwSetKeyCallback(window,key_callback);
-    glfwSetCursorPosCallback(window,mouse_callback);
-    glfwSetScrollCallback(window,scroll_callback);
+    //glfwSetCursorPosCallback(window,mouse_callback);
+    //glfwSetScrollCallback(window,scroll_callback);
 
     Shader our_shader("shader.vs","tshader.frag");
     Shader VFShader("shader.vs","shader.frag");
@@ -1179,8 +1187,8 @@ int main()
     };
 
     //GLuint VAO[4],VBO[4];
-    glGenBuffers(13,VBO);
-    glGenVertexArrays(13,VAO);
+    glGenBuffers(15,VBO);
+    glGenVertexArrays(15,VAO);
 
     // bind vertex array object
     //glBindVertexArray(/* TO CHANGE  */VAO[0]);
@@ -1457,6 +1465,42 @@ int main()
 
     //END SETUP LLEG KNEE   
 
+
+    //SETUP RIGHT EYE
+
+    glBindVertexArray(/* TO CHANGE  */VAO[13]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[13]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */Eye1.size()*sizeof(GLfloat),/* TO CHANGE  */Eye1.data(),GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP RIGHT EYE
+
+    //SETUP LEFT EYE
+
+    glBindVertexArray(/* TO CHANGE  */VAO[14]);
+
+    // copy the vertices in a buffer
+    glBindBuffer(GL_ARRAY_BUFFER,/* TO CHANGE  */VBO[14]);
+    glBufferData(GL_ARRAY_BUFFER,/* TO CHANGE  */Eye2.size()*sizeof(GLfloat),/* TO CHANGE  */Eye2.data(),GL_STATIC_DRAW);
+
+    // set position attribute pointers
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,/* TO CHANGE  */3*sizeof(GL_FLOAT),(GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    // unbind the vertex array object
+    glBindVertexArray(0);
+
+    //END SETUP LEFT EYE
 
  // bind vertex array object
      //glBindVertexArray(/* TO CHANGE  */VAO[8]);
@@ -2148,6 +2192,71 @@ int main()
 
 	//End Draw LLeg Knee
 
+	//Draw Right Eye
+
+	VFShader.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[13]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location16 = Validate(/* CHANGE */VFShader,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model16(1.0f);
+
+            model2=glm::translate(/* CHANGE */model16,/* CHANGE */RightEye_Position);
+
+            model2=glm::rotate(/* CHANGE */model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+	 glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+
+
+	glBindVertexArray(0);
+
+ 	//End Draw Right Eye
+
+
+	//Draw Left Eye
+
+	VFShader.Use();
+
+        glBindVertexArray(/* CHANGE */VAO[14]);
+
+        //Validate Shader Matrices
+
+        GLuint /* CHANGE */model_location17 = Validate(/* CHANGE */VFShader,view,projection);
+
+            /////////////////////////
+
+            // world space transformations
+            glm::mat4 /* CHANGE */model17(1.0f);
+
+            model2=glm::translate(/* CHANGE */model17,/* CHANGE */LeftEye_Position);
+
+            model2=glm::rotate(/* CHANGE */model2,glm::radians(/*(GLfloat)glfwGetTime()*50.0f*/ROT),glm::vec3(0.0f,1.0f,0.0f));
+
+         glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,4,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,8,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,12,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,16,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,20,4);
+            glDrawArrays(GL_TRIANGLE_STRIP,24,4);
+
+
+        glBindVertexArray(0);
+
+
+	//End Draw Left Eye
 
         //glBindVertexArray(0);
 	//glBindVertexArrat(VAO[1]);
@@ -2161,8 +2270,8 @@ int main()
     RArmElbow.clear();
     LLegKnee.clear();
     RLegKnee.clear();
-    glDeleteVertexArrays(13,VAO);
-    glDeleteBuffers(13,VBO);
+    glDeleteVertexArrays(15,VAO);
+    glDeleteBuffers(15,VBO);
     // terminate GLFW
     glfwTerminate();
 
